@@ -24,25 +24,29 @@ namespace Wowsome.Ads {
 
     public Model data;
 
+    RewardedAd _rewardedAd;
+
     public void InitReward() {
-      RewardBasedVideoAd.Instance.OnAdRewarded += (sender, e) => {
+      _rewardedAd = new RewardedAd(data.UnitId);
+
+      _rewardedAd.OnUserEarnedReward += (sender, e) => {
         OnRewarded?.Invoke();
       };
 
-      RewardBasedVideoAd.Instance.OnAdClosed += (sender, e) => {
+      _rewardedAd.OnAdClosed += (sender, e) => {
         LoadAd();
       };
 
-      RewardBasedVideoAd.Instance.OnAdFailedToLoad += (sender, args) => {
-        Debug.Log("admob rewarded HandleFailedToReceiveAd event received with message: " + args.Message);
+      _rewardedAd.OnAdFailedToLoad += (sender, args) => {
+        Debug.Log("admob rewarded HandleFailedToReceiveAd event received with message: " + args.ToString());
       };
 
       LoadAd();
     }
 
     public bool ShowReward() {
-      if (RewardBasedVideoAd.Instance.IsLoaded()) {
-        RewardBasedVideoAd.Instance.Show();
+      if (_rewardedAd.IsLoaded()) {
+        _rewardedAd.Show();
 
 #if UNITY_EDITOR
         OnRewarded?.Invoke();
@@ -51,7 +55,6 @@ namespace Wowsome.Ads {
         return true;
       }
 
-      LoadAd();
       return false;
     }
 
@@ -59,7 +62,7 @@ namespace Wowsome.Ads {
       // Create an empty ad request.
       AdRequest request = new AdRequest.Builder().Build();
       // load video
-      RewardBasedVideoAd.Instance.LoadAd(request, data.UnitId);
+      _rewardedAd.LoadAd(request);
     }
   }
 }
