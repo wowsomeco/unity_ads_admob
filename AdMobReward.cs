@@ -48,10 +48,6 @@ namespace Wowsome.Ads {
       if (_rewardedAd.IsLoaded()) {
         _rewardedAd.Show();
 
-#if UNITY_EDITOR
-        OnRewarded?.Invoke();
-#endif
-
         return true;
       }
 

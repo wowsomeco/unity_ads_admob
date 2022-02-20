@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using GoogleMobileAds.Api;
 using GoogleMobileAds.Common;
 using UnityEngine;
@@ -7,11 +8,17 @@ using Wowsome.Chrono;
 namespace Wowsome.Ads {
   public class AdMobBanner : MonoBehaviour, IBanner {
     [Serializable]
+    public enum BannerSize {
+      Banner, SmartBanner
+    }
+
+    [Serializable]
     public struct Model {
       public string unitIdIOS;
       public string unitIdAndroid;
       public string unitIdAmazon;
       public AdPosition position;
+      public BannerSize size;
 
       public string UnitId {
         get {
@@ -19,9 +26,20 @@ namespace Wowsome.Ads {
           return unitId.Trim();
         }
       }
+
+      public AdSize Size {
+        get {
+          Dictionary<BannerSize, Func<AdSize>> handlers = new Dictionary<BannerSize, Func<AdSize>>();
+
+          handlers[BannerSize.Banner] = () => AdSize.Banner;
+          handlers[BannerSize.SmartBanner] = () => AdSize.SmartBanner;
+
+          return handlers[size]();
+        }
+      }
     }
 
-    public Model Data;
+    public Model data;
 
     BannerView _banner;
     bool _loading = false;
@@ -73,7 +91,7 @@ namespace Wowsome.Ads {
       MobileAdsEventExecutor.ExecuteInUpdate(() => {
         //load banner
         AdRequest request = new AdRequest.Builder().Build();
-        _banner = new BannerView(Data.UnitId, AdSize.SmartBanner, Data.position);
+        _banner = new BannerView(data.UnitId, data.Size, data.position);
         _banner.OnAdLoaded += (sender, args) => {
           _loading = false;
           _loaded = true;
