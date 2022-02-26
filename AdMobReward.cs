@@ -19,6 +19,7 @@ namespace Wowsome.Ads {
       public int showOrder;
     }
 
+    public bool IsLoaded => _rewardedAd.IsLoaded();
     public Action OnRewarded { get; set; }
     public int Order => data.showOrder;
 
