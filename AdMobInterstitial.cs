@@ -34,9 +34,12 @@ namespace Wowsome.Ads {
       if (_interstitial.IsLoaded()) {
         Debug.Log("show admob ads");
         _interstitial.Show();
+
         return true;
+      } else {
+        ReloadAd();
       }
-      ReloadAd();
+
       return false;
     }
     #endregion
@@ -58,12 +61,13 @@ namespace Wowsome.Ads {
       // because admob is soo special, you need to delay reload
       // otherwise they will complain with their Too many recently failed requests on some random ios devices.
       _interstitial.OnAdClosed += (object sender, System.EventArgs e) => {
-        _delayLoad = new Timer(3f);
+        _delayLoad = new Timer(1f);
       };
     }
 
     void ReloadAd() {
-      Debug.Log("load admob ads");
+      Debug.Log("load admob interstitial ads");
+
 #if UNITY_ANDROID
       if (null == _interstitial) InitInternal();
 #elif UNITY_IPHONE
