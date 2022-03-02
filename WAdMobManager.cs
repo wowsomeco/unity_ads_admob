@@ -1,0 +1,21 @@
+﻿using GoogleMobileAds.Api;
+using GoogleMobileAds.Common;
+
+namespace Wowsome.Ads {
+  public class WAdMobManager : WAdsProviderBase {
+    public override void InitAdsProvider(WAdSystem adSystem) {
+      base.InitAdsProvider(adSystem);
+
+      if (adSystem.IsDisabled.Value) return;
+
+      MobileAds.SetiOSAppPauseOnBackground(true);
+      MobileAds.Initialize(HandleInitCompleteAction);
+    }
+
+    void HandleInitCompleteAction(InitializationStatus initstatus) {
+      MobileAdsEventExecutor.ExecuteInUpdate(() => {
+        InitAds();
+      });
+    }
+  }
+}
