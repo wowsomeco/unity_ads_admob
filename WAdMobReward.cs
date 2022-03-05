@@ -6,26 +6,13 @@ using Wowsome.Generic;
 
 namespace Wowsome.Ads {
   public class WAdMobReward : MonoBehaviour, IAd {
-    [Serializable]
-    public struct Model {
-      public string UnitId {
-        get {
-          string unitId = PlatformUtil.GetStringByPlatform(unitIdIOS, unitIdAndroid, unitIdAmazon);
-          return unitId.Trim();
-        }
-      }
-
-      public string unitIdIOS;
-      public string unitIdAndroid;
-      public string unitIdAmazon;
-    }
-
     public WObservable<bool> IsLoaded { get; private set; } = new WObservable<bool>(false);
     public AdType Type => AdType.Rewarded;
 
-    public Model data;
+    public WAdmobUnitModel data;
     public float delayLoad;
 
+    IAdsProvider _provider;
     Action _onDone = null;
     RewardedAd _rewardedAd;
     ObservableTimer _timer = null;
@@ -45,7 +32,9 @@ namespace Wowsome.Ads {
     }
 
     public void InitAd(IAdsProvider provider) {
-      _rewardedAd = new RewardedAd(data.UnitId);
+      _provider = provider;
+
+      _rewardedAd = new RewardedAd(data.GetUnitId(_provider.IsTestMode));
 
       _rewardedAd.OnAdLoaded += (_, __) => {
         IsLoaded.Next(true);

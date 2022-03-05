@@ -6,7 +6,7 @@ namespace Wowsome.Ads {
     public override void InitAdsProvider(WAdSystem adSystem) {
       base.InitAdsProvider(adSystem);
 
-      if (adSystem.IsDisabled.Value) return;
+      if (adSystem.IsDisabled.Value || isDisabled) return;
 
       MobileAds.SetiOSAppPauseOnBackground(true);
       MobileAds.Initialize(HandleInitCompleteAction);

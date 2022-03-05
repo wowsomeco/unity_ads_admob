@@ -13,20 +13,7 @@ namespace Wowsome.Ads {
     }
 
     [Serializable]
-    public struct Model {
-      public string unitIdIOS;
-      public string unitIdAndroid;
-      public string unitIdAmazon;
-      public AdPosition position;
-      public BannerSize size;
-
-      public string UnitId {
-        get {
-          string unitId = PlatformUtil.GetStringByPlatform(unitIdIOS, unitIdAndroid, unitIdAmazon);
-          return unitId.Trim();
-        }
-      }
-
+    public class Model : WAdmobUnitModel {
       public AdSize Size {
         get {
           Dictionary<BannerSize, Func<AdSize>> handlers = new Dictionary<BannerSize, Func<AdSize>>();
@@ -37,6 +24,9 @@ namespace Wowsome.Ads {
           return handlers[size]();
         }
       }
+
+      public AdPosition position;
+      public BannerSize size;
     }
 
     public WObservable<bool> IsLoaded { get; private set; } = new WObservable<bool>(false);
@@ -45,11 +35,14 @@ namespace Wowsome.Ads {
     public Model data;
     public float delayLoad;
 
+    IAdsProvider _provider;
     BannerView _banner;
     bool _loading = false;
     ObservableTimer _timer = null;
 
     public void InitAd(IAdsProvider provider) {
+      _provider = provider;
+
       LoadAd();
     }
 
@@ -97,7 +90,7 @@ namespace Wowsome.Ads {
       // load banner
       AdRequest request = new AdRequest.Builder().Build();
 
-      _banner = new BannerView(data.UnitId, data.Size, data.position);
+      _banner = new BannerView(data.GetUnitId(_provider.IsTestMode), data.Size, data.position);
 
       _banner.OnAdLoaded += (sender, args) => {
         _loading = false;

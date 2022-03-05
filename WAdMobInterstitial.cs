@@ -6,26 +6,13 @@ using Wowsome.Generic;
 
 namespace Wowsome.Ads {
   public class WAdMobInterstitial : MonoBehaviour, IAd {
-    [Serializable]
-    public struct Model {
-      public string unitIdIOS;
-      public string unitIdAndroid;
-      public string unitIdAmazon;
-
-      public string UnitId {
-        get {
-          string unitId = PlatformUtil.GetStringByPlatform(unitIdIOS, unitIdAndroid, unitIdAmazon);
-          return unitId.Trim();
-        }
-      }
-    }
-
     public WObservable<bool> IsLoaded { get; private set; } = new WObservable<bool>(false);
     public AdType Type => AdType.Interstitial;
 
-    public Model data;
+    public WAdmobUnitModel data;
     public float delayLoad;
 
+    IAdsProvider _provider;
     InterstitialAd _interstitial;
     Action _onDone = null;
     ObservableTimer _timer = null;
@@ -34,7 +21,11 @@ namespace Wowsome.Ads {
       if (IsLoaded.Value) {
         _onDone = onDone;
 
+#if UNITY_EDITOR
+        Print.Log(() => "cyan", "Show admob interstitial");
+#else
         _interstitial.Show();
+#endif
 
         return true;
       }
@@ -45,6 +36,8 @@ namespace Wowsome.Ads {
     }
 
     public void InitAd(IAdsProvider provider) {
+      _provider = provider;
+
       LoadAd();
     }
 
@@ -56,7 +49,7 @@ namespace Wowsome.Ads {
         _interstitial.Destroy();
       }
 
-      _interstitial = new InterstitialAd(data.UnitId);
+      _interstitial = new InterstitialAd(data.GetUnitId(_provider.IsTestMode));
 
       _interstitial.OnAdLoaded += (_, __) => {
         IsLoaded.Next(true);
