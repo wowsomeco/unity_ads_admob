@@ -6,11 +6,13 @@ using Wowsome.Generic;
 
 namespace Wowsome.Ads {
   public class WAdMobReward : MonoBehaviour, IAd {
+    public int Priority => priority;
     public WObservable<bool> IsLoaded { get; private set; } = new WObservable<bool>(false);
     public AdType Type => AdType.Rewarded;
 
     public WAdmobUnitModel data;
     public float delayLoad;
+    public int priority;
 
     IAdsProvider _provider;
     Action _onDone = null;

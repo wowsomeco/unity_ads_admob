@@ -29,11 +29,13 @@ namespace Wowsome.Ads {
       public BannerSize size;
     }
 
+    public int Priority => priority;
     public WObservable<bool> IsLoaded { get; private set; } = new WObservable<bool>(false);
     public AdType Type => AdType.Banner;
 
     public Model data;
     public float delayLoad;
+    public int priority;
 
     IAdsProvider _provider;
     BannerView _banner;
