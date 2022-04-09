@@ -74,6 +74,8 @@ namespace Wowsome.Ads {
     }
 
     void LoadAd() {
+      IsLoaded.Next(false);
+
       _timer = new ObservableTimer(delayLoad);
       _timer.OnDone += () => {
         RequestAd();
