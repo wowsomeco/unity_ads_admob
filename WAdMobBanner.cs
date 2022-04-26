@@ -39,7 +39,6 @@ namespace Wowsome.Ads {
 
     IAdsProvider _provider;
     BannerView _banner;
-    bool _loading = false;
     ObservableTimer _timer = null;
 
     public void InitAd(IAdsProvider provider) {
@@ -56,7 +55,7 @@ namespace Wowsome.Ads {
         _banner.Hide();
         _banner.Destroy();
 
-        IsLoaded.Next(false);
+        RequestAd();
       }
     }
 
@@ -65,8 +64,6 @@ namespace Wowsome.Ads {
         _banner.Show();
 
         return true;
-      } else if (!_loading) {
-        LoadAd();
       }
 
       return false;
@@ -87,7 +84,7 @@ namespace Wowsome.Ads {
     }
 
     void RequestAd() {
-      _loading = true;
+      IsLoaded.Next(false);
 
       // load banner
       AdRequest request = new AdRequest.Builder().Build();
@@ -95,16 +92,10 @@ namespace Wowsome.Ads {
       _banner = new BannerView(data.GetUnitId(_provider.IsTestMode), data.Size, data.position);
 
       _banner.OnAdLoaded += (sender, args) => {
-        _loading = false;
-
         // hide initially on loaded
         _banner.Hide();
 
         IsLoaded.Next(true);
-      };
-
-      _banner.OnAdFailedToLoad += (sender, e) => {
-        // do nothing when failed to load for now, might want to notify something later
       };
 
       _banner.LoadAd(request);
