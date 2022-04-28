@@ -20,14 +20,12 @@ namespace Wowsome.Ads {
     ObservableTimer _timer = null;
 
     public bool ShowAd(Action onDone = null) {
-      if (_rewardedAd.IsLoaded()) {
+      if (IsLoaded.Value) {
         _onDone = onDone;
 
         _rewardedAd.Show();
 
         return true;
-      } else {
-        LoadAd();
       }
 
       return false;
@@ -56,19 +54,22 @@ namespace Wowsome.Ads {
         Debug.Log("admob rewarded HandleFailedToReceiveAd event received with message: " + args.ToString());
       };
 
-      LoadAd();
+      RequestAdWithDelay();
     }
 
     public void OnDisabled() { }
 
     void RequestAd() {
+      IsLoaded.Next(false);
       // Create an empty ad request.
       AdRequest request = new AdRequest.Builder().Build();
       // load video
       _rewardedAd.LoadAd(request);
     }
 
-    void LoadAd() {
+    void RequestAdWithDelay() {
+      IsLoaded.Next(false);
+
       _timer = new ObservableTimer(delayLoad);
       _timer.OnDone += () => {
         RequestAd();

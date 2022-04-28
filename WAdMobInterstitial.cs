@@ -32,8 +32,6 @@ namespace Wowsome.Ads {
         return true;
       }
 
-      LoadAd();
-
       return false;
     }
 
@@ -63,9 +61,7 @@ namespace Wowsome.Ads {
         _onDone?.Invoke();
         _onDone = null;
 
-        IsLoaded.Next(false);
-
-        LoadAd();
+        RequestAd();
       };
       // Create an empty ad request.
       AdRequest request = new AdRequest.Builder().Build();
