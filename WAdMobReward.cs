@@ -47,7 +47,7 @@ namespace Wowsome.Ads {
       };
 
       _rewardedAd.OnAdClosed += (sender, e) => {
-        RequestAd();
+        RequestAdWithDelay();
       };
 
       _rewardedAd.OnAdFailedToLoad += (sender, args) => {

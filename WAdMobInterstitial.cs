@@ -38,7 +38,7 @@ namespace Wowsome.Ads {
     public void InitAd(IAdsProvider provider) {
       _provider = provider;
 
-      LoadAd();
+      RequestAdWithDelay();
     }
 
     public void OnDisabled() { }
@@ -61,7 +61,7 @@ namespace Wowsome.Ads {
         _onDone?.Invoke();
         _onDone = null;
 
-        RequestAd();
+        RequestAdWithDelay();
       };
       // Create an empty ad request.
       AdRequest request = new AdRequest.Builder().Build();
@@ -69,7 +69,7 @@ namespace Wowsome.Ads {
       _interstitial.LoadAd(request);
     }
 
-    void LoadAd() {
+    void RequestAdWithDelay() {
       IsLoaded.Next(false);
 
       _timer = new ObservableTimer(delayLoad);
