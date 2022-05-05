@@ -48,14 +48,8 @@ namespace Wowsome.Ads {
     }
 
     public void HideAd() {
-      // this stupid banner seems unable to toggle visibility,
-      // the workaround is when hiding, we destroy it
-      // then reload it again
       if (IsLoaded.Value) {
         _banner.Hide();
-        _banner.Destroy();
-
-        RequestAd();
       }
     }
 
