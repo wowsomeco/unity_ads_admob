@@ -7,6 +7,25 @@ using Wowsome.Generic;
 
 namespace Wowsome.Ads {
   public class WAdMobBanner : MonoBehaviour, IAd {
+    public class PlatformChecker {
+      public bool IsIos => Application.platform == RuntimePlatform.IPhonePlayer;
+      public bool IsAndroid => !IsIos;
+      public bool IsGoogle { get; private set; }
+      public bool IsAmazon => !IsGoogle;
+
+      public PlatformChecker() {
+        if (!IsIos) {
+          // we depend on selected iap in BillingMode.json to avoid redundancy, for now
+          var ta = Resources.Load<TextAsset>("BillingMode");
+
+          if (null != ta) {
+            string mode = ta.text;
+            IsGoogle = mode.Contains("GooglePlay");
+          }
+        }
+      }
+    }
+
     [Serializable]
     public enum BannerSize {
       Banner, SmartBanner
@@ -36,13 +55,16 @@ namespace Wowsome.Ads {
     public Model data;
     public float delayLoad;
     public int priority;
+    public bool disableOnGooglePlay;
 
+    PlatformChecker _platformChecker;
     IAdsProvider _provider;
     BannerView _banner;
     ObservableTimer _timer = null;
 
     public void InitAd(IAdsProvider provider) {
       _provider = provider;
+      _platformChecker = new PlatformChecker();
 
       LoadAd();
     }
@@ -68,6 +90,8 @@ namespace Wowsome.Ads {
     }
 
     void LoadAd() {
+      if (disableOnGooglePlay && _platformChecker.IsGoogle) return;
+
       _timer = new ObservableTimer(delayLoad);
 
       _timer.OnDone += () => {
