@@ -36,7 +36,7 @@ namespace Wowsome.Ads {
     public Model data;
     public float delayLoad;
     public int priority;
-    public int minScreenSizeToShow = 1080;
+    public float maxAspectRatio = 2f;
 
     IAdsProvider _provider;
     BannerView _banner;
@@ -69,10 +69,10 @@ namespace Wowsome.Ads {
     }
 
     void LoadAd() {
-      int curMinLen = (int)ScreenExtensions.MinLength;
+      float aspectRatio = ScreenExtensions.AspectRatio();
 
-      if (curMinLen <= minScreenSizeToShow) {
-        Print.Warn("Admob banner not showing, w or h is too small");
+      if (aspectRatio > maxAspectRatio) {
+        Print.Warn($"Admob banner not showing, aspect ratio is too big, {aspectRatio}");
         return;
       }
 
