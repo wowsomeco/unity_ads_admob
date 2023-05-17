@@ -3,6 +3,8 @@ using GoogleMobileAds.Common;
 
 namespace Wowsome.Ads {
   public class WAdMobManager : WAdsProviderBase {
+    public override string Id => "admob";
+
     public override void InitAdsProvider(WAdSystem adSystem) {
       base.InitAdsProvider(adSystem);
 
