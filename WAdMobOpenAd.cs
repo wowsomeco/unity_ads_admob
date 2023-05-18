@@ -5,6 +5,9 @@ using Wowsome.Chrono;
 using Wowsome.Generic;
 
 namespace Wowsome.Ads {
+  /// <summary>
+  /// WIP
+  /// </summary>
   public class WAdMobOpenAd : MonoBehaviour, IAd {
     public int Priority => 1;
     public WObservable<bool> IsLoaded { get; private set; } = new WObservable<bool>(false);
