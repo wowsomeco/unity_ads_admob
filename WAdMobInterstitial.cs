@@ -49,24 +49,28 @@ namespace Wowsome.Ads {
         _interstitial.Destroy();
       }
 
-      _interstitial = new InterstitialAd(data.GetUnitId(_provider.IsTestMode));
+      InterstitialAd.Load(data.GetUnitId(_provider.IsTestMode), new AdRequest(),
+        (InterstitialAd ad, LoadAdError loadAdError) => {
+          if (loadAdError != null) {
+            Debug.Log("Interstitial ad failed to load with error: " + loadAdError.GetMessage());
+            return;
+          } else if (ad == null) {
+            Debug.Log("Interstitial ad failed to load.");
+            return;
+          }
 
-      _interstitial.OnAdLoaded += (_, __) => {
-        IsLoaded.Next(true);
-      };
+          IsLoaded.Next(true);
 
-      // because admob is soo special, you need to delay reload
-      // otherwise they will complain with their Too many recently failed requests on some random ios devices.
-      _interstitial.OnAdClosed += (object sender, EventArgs e) => {
-        _onDone?.Invoke();
-        _onDone = null;
+          _interstitial = ad;
 
-        RequestAdWithDelay();
-      };
-      // Create an empty ad request.
-      AdRequest request = new AdRequest.Builder().Build();
-      // Load the interstitial with the request.
-      _interstitial.LoadAd(request);
+          _interstitial.OnAdFullScreenContentClosed += () => {
+            _onDone?.Invoke();
+            _onDone = null;
+
+            RequestAdWithDelay();
+          };
+        }
+      );
     }
 
     void RequestAdWithDelay() {

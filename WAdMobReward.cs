@@ -15,15 +15,14 @@ namespace Wowsome.Ads {
     public int priority;
 
     IAdsProvider _provider;
-    Action _onDone = null;
     RewardedAd _rewardedAd;
     ObservableTimer _timer = null;
 
     public bool ShowAd(Action onDone = null) {
-      if (IsLoaded.Value) {
-        _onDone = onDone;
-
-        _rewardedAd.Show();
+      if (IsLoaded.Value && _rewardedAd.CanShowAd()) {
+        _rewardedAd.Show(_ => {
+          onDone?.Invoke();
+        });
 
         return true;
       }
@@ -34,26 +33,6 @@ namespace Wowsome.Ads {
     public void InitAd(IAdsProvider provider) {
       _provider = provider;
 
-      _rewardedAd = new RewardedAd(data.GetUnitId(_provider.IsTestMode));
-
-      _rewardedAd.OnAdLoaded += (_, __) => {
-        IsLoaded.Next(true);
-      };
-
-      _rewardedAd.OnUserEarnedReward += (sender, e) => {
-        _onDone?.Invoke();
-
-        _onDone = null;
-      };
-
-      _rewardedAd.OnAdClosed += (sender, e) => {
-        RequestAdWithDelay();
-      };
-
-      _rewardedAd.OnAdFailedToLoad += (sender, args) => {
-        Debug.Log("admob rewarded HandleFailedToReceiveAd event received with message: " + args.ToString());
-      };
-
       RequestAdWithDelay();
     }
 
@@ -61,10 +40,27 @@ namespace Wowsome.Ads {
 
     void RequestAd() {
       IsLoaded.Next(false);
-      // Create an empty ad request.
-      AdRequest request = new AdRequest.Builder().Build();
-      // load video
-      _rewardedAd.LoadAd(request);
+
+      RewardedAd.Load(data.GetUnitId(_provider.IsTestMode), new AdRequest(),
+        (RewardedAd ad, LoadAdError loadError) => {
+          if (loadError != null) {
+            Debug.Log("Rewarded ad failed to load with error: " + loadError.GetMessage());
+            return;
+          } else if (ad == null) {
+            Debug.Log("Rewarded ad failed to load.");
+            return;
+          }
+
+          Debug.Log("Rewarded ad loaded.");
+          _rewardedAd = ad;
+
+          _rewardedAd.OnAdFullScreenContentClosed += () => {
+            RequestAdWithDelay();
+          };
+
+          IsLoaded.Next(true);
+        }
+      );
     }
 
     void RequestAdWithDelay() {
@@ -83,4 +79,3 @@ namespace Wowsome.Ads {
     }
   }
 }
-

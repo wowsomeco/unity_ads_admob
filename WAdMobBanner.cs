@@ -9,7 +9,7 @@ namespace Wowsome.Ads {
   public class WAdMobBanner : MonoBehaviour, IAd {
     [Serializable]
     public enum BannerSize {
-      Banner, SmartBanner
+      Banner
     }
 
     [Serializable]
@@ -19,7 +19,6 @@ namespace Wowsome.Ads {
           Dictionary<BannerSize, Func<AdSize>> handlers = new Dictionary<BannerSize, Func<AdSize>>();
 
           handlers[BannerSize.Banner] = () => AdSize.Banner;
-          handlers[BannerSize.SmartBanner] = () => AdSize.SmartBanner;
 
           return handlers[size]();
         }
@@ -71,6 +70,8 @@ namespace Wowsome.Ads {
     void LoadAd() {
       float aspectRatio = ScreenExtensions.AspectRatio();
 
+      Print.Info($"Cur Aspect Ratio : {aspectRatio}");
+
       if (aspectRatio > maxAspectRatio) {
         Print.Warn($"Admob banner not showing, aspect ratio is too big, {aspectRatio}");
         return;
@@ -89,18 +90,16 @@ namespace Wowsome.Ads {
       IsLoaded.Next(false);
 
       // load banner
-      AdRequest request = new AdRequest.Builder().Build();
-
       _banner = new BannerView(data.GetUnitId(_provider.IsTestMode), data.Size, data.position);
 
-      _banner.OnAdLoaded += (sender, args) => {
+      _banner.OnBannerAdLoaded += () => {
         // hide initially on loaded
         _banner.Hide();
 
         IsLoaded.Next(true);
       };
 
-      _banner.LoadAd(request);
+      _banner.LoadAd(new AdRequest());
     }
 
     void Update() {
