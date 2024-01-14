@@ -53,7 +53,7 @@ namespace Wowsome.Ads {
       }
     }
 
-    public bool ShowAd(Action onDone = null) {
+    public bool ShowAd(Action onDone = null, Action onError = null) {
       if (IsLoaded.Value) {
         _banner.Show();
 

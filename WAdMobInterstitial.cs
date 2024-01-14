@@ -19,7 +19,7 @@ namespace Wowsome.Ads {
     Action _onDone = null;
     ObservableTimer _timer = null;
 
-    public bool ShowAd(Action onDone = null) {
+    public bool ShowAd(Action onDone = null, Action onError = null) {
       if (IsLoaded.Value) {
         _onDone = onDone;
 

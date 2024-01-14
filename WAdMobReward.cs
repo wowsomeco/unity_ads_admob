@@ -17,9 +17,12 @@ namespace Wowsome.Ads {
     IAdsProvider _provider;
     RewardedAd _rewardedAd;
     ObservableTimer _timer = null;
+    Action _onError;
 
-    public bool ShowAd(Action onDone = null) {
+    public bool ShowAd(Action onDone = null, Action onError = null) {
       if (IsLoaded.Value && _rewardedAd.CanShowAd()) {
+        _onError = onError;
+
         _rewardedAd.Show(_ => {
           onDone?.Invoke();
         });
@@ -56,6 +59,11 @@ namespace Wowsome.Ads {
 
           _rewardedAd.OnAdFullScreenContentClosed += () => {
             RequestAdWithDelay();
+          };
+
+          _rewardedAd.OnAdFullScreenContentFailed += _ => {
+            _onError?.Invoke();
+            _onError = null;
           };
 
           IsLoaded.Next(true);
